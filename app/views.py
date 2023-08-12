@@ -1,4 +1,5 @@
-import requests
+import jwt
+from datetime import datetime, timedelta
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
@@ -6,6 +7,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+import environ
+env = environ.Env()
 
 from .models import *
 from .serializers import *
@@ -47,15 +51,26 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        # Log the user in to get jwt tokens
-        login_url = f"http://{request.headers['Host']}/api/login/"
-
-        creditionals = {
-            "email": request.data['email'],
-            "password": request.data['password']
+        access_payload = {
+            'user_id': serializer.data.id,
+            'name': serializer.data.name,
+            'iat': datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(minutes=5)
         }
+        access_token = jwt.encode(access_payload, env("JWT_SECRET"), 'HS256')
 
-        tokens = requests.post(login_url, json=creditionals).json()
+        refresh_payload = {
+            'user_id': serializer.data.id,
+            'name': serializer.data.name,
+            'iat': datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(days=10)
+        }
+        refresh_token = jwt.encode(refresh_payload, env("JWT_SECRET"), 'HS256')
+
+        tokens = {
+            "refresh": refresh_token,
+            "access": access_token
+        }
 
         return Response(tokens, status=status.HTTP_201_CREATED)
         
