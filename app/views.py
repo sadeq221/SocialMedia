@@ -51,17 +51,18 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        print(serializer.data)
         access_payload = {
-            'user_id': serializer.data.id,
-            'name': serializer.data.name,
+            'user_id': serializer.data['id'],
+            'name': serializer.data['name'],
             'iat': datetime.utcnow(),
             'exp': datetime.utcnow() + timedelta(minutes=5)
         }
         access_token = jwt.encode(access_payload, env("JWT_SECRET"), 'HS256')
 
         refresh_payload = {
-            'user_id': serializer.data.id,
-            'name': serializer.data.name,
+            'user_id': serializer.data['id'],
+            'name': serializer.data['name'],
             'iat': datetime.utcnow(),
             'exp': datetime.utcnow() + timedelta(days=10)
         }
