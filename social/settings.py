@@ -1,3 +1,4 @@
+import os
 
 from pathlib import Path
 
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
 
     'app',
     'rest_framework',
+    'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
 
@@ -51,18 +53,15 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-
-    # # It will work instead of the default serializer(TokenObtainPairSerializer).
-    # "TOKEN_OBTAIN_SERIALIZER": "app.views.MyTokenObtainPairSerializer",
-
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    "VERIFYING_KEY": "",
+    "SIGNING_KEY": env("JWT_SECRET"),
+    "VERIFYING_KEY": env("JWT_SECRET"),
     "AUDIENCE": None,
     "ISSUER": None,
     "JSON_ENCODER": None,
@@ -174,14 +173,23 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = 'static/'
+
+# Specify the URL prefix for serving media files
+MEDIA_URL = '/media/'
+
+# Specify the filesystem path where uploaded media files will be stored
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Make sure that BASE_DIR is defined somewhere at the top
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
