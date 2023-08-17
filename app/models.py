@@ -17,7 +17,7 @@ class User(AbstractUser):
     
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to="avatars/")
     bio = models.TextField(max_length=500)
     birth_date = models.DateField(null=True, blank=True)

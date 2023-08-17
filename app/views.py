@@ -30,6 +30,11 @@ def register_view(request):
     serializered_user.save()
 
     user = User.objects.get(id=serializered_user.data['id'])
+
+    # Intilize a Profile for the new User
+    Profile.objects.create(user=user)
+
+    # Get tokens
     tokens = get_tokens_for_user(user)
 
     return Response(tokens, status=status.HTTP_201_CREATED)
