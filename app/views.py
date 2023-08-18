@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -72,12 +73,9 @@ def edit_profile(request, user_id):
     elif request.method == 'PUT':
         form = ProfileSerializer(serializered_prof, request.data) 
 
-        if form.is_valid():
-            form.save()
-            return Response({'message': 'profile info updated.'})
-
-        else:
-            return Response({'message': 'Invalid data.'}, status=status.HTTP_400_BAD_REQUEST)
+        form.is_valid(raise_exception=True)
+        form.save()
+        return Response({'message': 'profile Updated.'})
 
 
 

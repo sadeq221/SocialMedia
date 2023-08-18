@@ -1,5 +1,3 @@
-import uuid
+id = {"hi": "hello", "good": "goodby"}
 
-id = uuid.uuid4()
-
-print(str(id))
+print(id["hi"])
