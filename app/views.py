@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -39,6 +39,16 @@ def register_view(request):
     tokens = get_tokens_for_user(user)
 
     return Response(tokens, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+def token_blacklist(request):
+
+    token = request.data['refresh']
+    token = RefreshToken(token)
+    token.blacklist()
+
+    return Response({"Token Blacklisted"})
     
 
 @api_view(['GET'])
