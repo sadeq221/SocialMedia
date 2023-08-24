@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404, render
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
@@ -14,11 +15,14 @@ from .serializers import *
 
 @api_view(['GET'])
 def get_routes(request):
-    routes_list = {
-        'register': ['name', 'email', 'password'],
-        'login': ['email', 'password'],
-        'token/refresh': 'refresh token'
-    }
+    routes_list = [
+        'register',
+        'login',
+        'token/refresh',
+        'token/blacklist',
+        'profiles/user_id',
+        'profiles/user_id/edit/'
+    ]
 
     return Response(routes_list)
 
@@ -49,8 +53,10 @@ def token_blacklist(request):
     token.blacklist()
 
     return Response({"Token Blacklisted"})
+
     
 
+# --------------------- profile ---------------------------------------------------------------------
 @api_view(['GET'])
 def view_profile(request, user_id):
 
@@ -62,10 +68,14 @@ def view_profile(request, user_id):
 
     serializered_prof = ProfileSerializer(profile)
 
-    return Response(serializered_prof.data)
+    return render(request, "app/index.html", {
+        "profile": profile
+    })
+
+    # return Response(serializered_prof.data)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def edit_profile(request, user_id):
 
@@ -74,56 +84,103 @@ def edit_profile(request, user_id):
     if not user.id == user_id:
         return Response({"message": "You can't edit other's profiles."}, status=status.HTTP_401_UNAUTHORIZED)
         
-    profile = Profile.objects.get(user=user)
-    serializered_prof = ProfileSerializer(profile)
+    profile = user.profile
 
-    if request.method == 'GET':
-        return Response(serializered_prof.data)
-    
-    elif request.method == 'PUT':
-        form = ProfileSerializer(serializered_prof, request.data) 
+    updated_prof = ProfileSerializer(profile, request.data, partial=True) 
+    updated_prof.is_valid(raise_exception=True)
+    updated_prof.save()
 
-        form.is_valid(raise_exception=True)
-        form.save()
-        return Response({'message': 'profile Updated.'})
+    return Response({'message': 'profile Updated.'})
 
 
-
-
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @api_view(['GET'])
+# @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
-# def get_posts(request):
+# def edit_profile(request, user_id):
 
 #     user = request.user
 
-#     posts = user.posts.all()
+#     if not user.id == user_id:
+#         return Response({"message": "You can't edit other's profiles."}, status=status.HTTP_401_UNAUTHORIZED)
+        
+#     profile = Profile.objects.get(user=user)
 
-#     if posts:
-#         code = status.HTTP_200_OK
-#     else:
-#         code = status.HTTP_204_NO_CONTENT
+#     updated_prof = ProfileSerializer(profile, request.data, partial=True) 
+#     updated_prof.is_valid(raise_exception=True)
+#     updated_prof.save()
+#     return Response({'message': 'profile Updated.'})
 
-#     serializer = PostSerializer(posts, many=True)
+# ---------------------------------------------------------------------------------------------------------
 
-#     return Response({"posts": serializer.data}, status=code)
+# ------------------------ Post ---------------------------------------------------------------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_post(request):
+
+    serializer = PostSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+
+    return Response({"result":"Post is created.", "data":serializer.data})
+
+
+@api_view(['GET'])
+def view_post(request, post_id):
+
+    post = get_object_or_404(Post, id=post_id)
+
+    serializer = PostSerializer(post)
+
+    return Response(serializer.data)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def edit_post(request, post_id):
+
+    post = get_object_or_404(Post, id=post_id)
+
+    user = request.user
+
+    # Check if the the user owns the post
+    if not post in user.posts.all():
+        return Response({"message": "You can't edit other's posts."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    edited_post = PostSerializer(post, request.data, partial=True)
+    edited_post.is_valid(raise_exception=True)
+    try:
+        edited_post.save()
+    except Exception as e:
+        return Response({str(e)})
+    
+    return Response({"Post is edited."})
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_post(request, post_id):
+
+    post = get_object_or_404(Post, id=post_id)
+
+    user = request.user
+
+    # Check if the the user owns the post
+    if not post in user.posts.all():
+        return Response({"message": "You can't delete other's posts."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    post.delete()
+
+    return Response({"Post is deleted."})
+
+
+@api_view(['GET'])
+def list_user_posts(request, user_id):
+
+    user = get_object_or_404(User, pk=user_id)
+    posts = user.posts.all()
+
+    if posts:
+        serializer = PostSerializer(user.posts.all(), many=True)
+        return Response(serializer.data)
+    else:
+        return Response({"No posts for this User."})
+
