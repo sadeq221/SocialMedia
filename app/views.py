@@ -68,11 +68,7 @@ def view_profile(request, user_id):
 
     serializered_prof = ProfileSerializer(profile)
 
-    return render(request, "app/index.html", {
-        "profile": profile
-    })
-
-    # return Response(serializered_prof.data)
+    return Response(serializered_prof.data)
 
 
 @api_view(['PATCH'])
@@ -92,22 +88,6 @@ def edit_profile(request, user_id):
 
     return Response({'message': 'profile Updated.'})
 
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def edit_profile(request, user_id):
-
-#     user = request.user
-
-#     if not user.id == user_id:
-#         return Response({"message": "You can't edit other's profiles."}, status=status.HTTP_401_UNAUTHORIZED)
-        
-#     profile = Profile.objects.get(user=user)
-
-#     updated_prof = ProfileSerializer(profile, request.data, partial=True) 
-#     updated_prof.is_valid(raise_exception=True)
-#     updated_prof.save()
-#     return Response({'message': 'profile Updated.'})
 
 # ---------------------------------------------------------------------------------------------------------
 
