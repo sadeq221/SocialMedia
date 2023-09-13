@@ -3,10 +3,18 @@
 import os
 import sys
 
+import environ
+env = environ.Env()
+environ.Env.read_env()
+
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'social.settings')
+    if env("DJANGO_ENV") == "development":
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'social.settings.development')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'social.settings.production')
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

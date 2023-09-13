@@ -10,9 +10,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('app.urls')),
 
+    # Debug
+    path("debug", include("debug_toolbar.urls")),
+
+    # Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI:
-    path('api/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/docs/', SpectacularRedocView.as_view(url_name='schema'), name='docs'),
 ]
 

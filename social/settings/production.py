@@ -1,4 +1,4 @@
-from .settings_base import *
+from .base import *
 
 
 # Logging in production

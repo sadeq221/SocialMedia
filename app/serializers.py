@@ -33,16 +33,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         }
 
 
-
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = '__all__'
-
-        # extra_kwargs = {
-        #     'user': {'read_only': True},
-        #     'created': {'read_only': True}
-        # }
 
     def update(self, instance, validated_data):
 
@@ -59,3 +53,37 @@ class PostSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
+    
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+
+        # Remove unpdatable fields (if they're provided)
+        excluded_fields = ['user', 'post', 'created', 'parent']
+        for field in excluded_fields:
+            validated_data.pop(field, None)
+            
+        # Call the parent class's update method to perform default update logic
+        instance = super().update(instance, validated_data)
+
+        # Update the 'last_updated' field to the current datetime.
+        instance.last_edited = datetime.utcnow()
+        
+        instance.save()
+        return instance
+    
+
+class PostLikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostLike
+        fields = '__all__'
+
+
+class CommentLikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommentLike
+        fields = '__all__'
