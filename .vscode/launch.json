@@ -8,7 +8,7 @@
             "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "C:/Users/sadeq/Desktop/learning/social/manage.py",
+            "program": "C:/Users/sadeq/Desktop/projects/social/manage.py",
             "args": [
                 "runserver",
             ],
