@@ -31,7 +31,7 @@ class User(AbstractUser):
         return self.following.filter(following=user).exists()
     
 
-    # Checks if the user is following the given user?
+    # Checks if the user is followed by the given user?
     def is_followed_by(self, user):
         return self.followers.filter(follower=user).exists()
     
@@ -104,7 +104,6 @@ class PostLike(models.Model):
             models.UniqueConstraint(fields=["user", "post"], name="unique_post_likers")
         ]
 
-
     def __str__(self):
         return f"{self.user} liked {self.post.title}"
     
@@ -121,3 +120,10 @@ class CommentLike(models.Model):
 
     def __str__(self):
         return f"{self.user} liked a comment on {self.comment.post.title}"
+    
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)

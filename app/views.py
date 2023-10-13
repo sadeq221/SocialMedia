@@ -1,4 +1,9 @@
+from django.conf import settings
 from django.db.utils import IntegrityError
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
@@ -18,6 +23,9 @@ from .serializers import *
 
 @api_view(["POST"])
 def register_view(request):
+    '''
+    A view that registers new user using "name", "email" and "password"
+    '''
     # Serialize the user and save him
     serializered_user = UserSerializer(data=request.data)
     serializered_user.is_valid(raise_exception=True)
@@ -33,6 +41,9 @@ def register_view(request):
 
 @api_view(["POST"])
 def login_view(request):
+    '''
+    A view that login users using "email" and "password"
+    '''
     # Check the provided fields
     if not ("email" in request.data and "password" in request.data):
         return Response(
@@ -60,9 +71,54 @@ def login_view(request):
     return Response(tokens, status=status.HTTP_200_OK)
 
 
+@api_view(["POST"])
+def forgot_password(request):
+    # # Check if email is provided in the request
+    # if not (email := request.data.get('email')):
+    #     return Response({"message":"Email's not provided."})
+    
+    # # User existance
+    # try:
+    #     user = User.objects.get(email=email)
+    # except User.DoesNotExist:
+    #     return Response({"message": "User with this email was not found."})
+    
+    # token = default_token_generator.make_token(user)
+    # uid = urlsafe_base64_encode(force_bytes(user.pk))
+    # reset_link = f"blublublu/reset-password/{uid}/{token}/"
+
+    subject = "Reset Password"
+    message = f"Hello, Click this link to reset your password"
+    # message = f"Hello, Click this link to reset your password {reset_link}"
+
+    email = request.data.get('email')
+    send_mail(
+        subject,
+        message,
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
+    )
+
+    return Response("pass")
+
+
+
+
+
+
+
+
+
+
+
+
 # Logout
 @api_view(["POST"])
 def token_blacklist(request):
+    '''
+    A view that get a refresh token and blacklist it
+    '''
     # Take the refresh token from user and blacklist it
     try:
         token = request.data["refresh"]
@@ -73,7 +129,7 @@ def token_blacklist(request):
             {"refresh": ["This field is required."]}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    return Response({"Token Blacklisted"})
+    return Response({"message": "Token Blacklisted"})
 
 
 # ====================== Profile =============================
@@ -134,11 +190,11 @@ def create_post(request):
         )
 
     # Confirm that the post is created for the authenticated user (not someone else)
-    request.data._mutable = True
-    request.data["user"] = request.user.id
+    data = request.data.copy()
+    data["user"] = request.user.id
 
     # Serialize the post details and save them
-    serializer = PostSerializer(data=request.data)
+    serializer = PostSerializer(data=data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
 
@@ -427,3 +483,18 @@ def unfollow(request, user_id):
         )
     
     return Response({"message": f"Successfully unfollowed {user_to_unfollow.name}"})
+
+
+# ======================= Message =================================
+
+# @api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+# def send_message(request):
+
+#     data = request.data.copy()
+#     data['sender'] = request.user.id
+
+#     serializer = MessageSerializer(data=data)
+#     serializer.is_valid(raise_exception=True)
+#     serializer.save()
+#     return Response({"message": "Message was sent."})

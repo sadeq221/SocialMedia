@@ -1,6 +1,10 @@
 from .base import *
 
 
+# Expiration time of the tokens created for password resetting
+# This is the default. No need to write it
+PASSWORD_RESET_TIMEOUT = 259200 # 3 days, in seconds
+
 # Longer life for access token for comfort in testing
 SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"] = timedelta(days=1)
 

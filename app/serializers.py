@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from .models import *
 
@@ -87,3 +87,13 @@ class CommentLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommentLike
         fields = '__all__'
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields= "__all__"
+
+    def create(self, validated_data):
+        if validated_data['sender'] == validated_data['receiver']:
+            raise ValidationError("User can't send message to himself.", code='invalid')

@@ -12,6 +12,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/blacklist/', views.token_blacklist, name='token_blacklist'),
     path('register/', views.register_view, name='register'),
+    path('forgot_password/', views.forgot_password, name='forgot_password'),
 
     # User
     path('user/<int:user_id>/posts', views.list_user_posts, name='list_user_posts'),
@@ -41,5 +42,8 @@ urlpatterns = [
     # Follow
     path('follow/<int:user_id>/', views.follow, name='follow'),
     path('unfollow/<int:user_id>/', views.unfollow, name='unfollow'),
+
+    # Message
+    # path('send_message/', views.send_message, name="send_message"),
  
 ]
