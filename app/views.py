@@ -24,19 +24,77 @@ from .serializers import *
 @api_view(["POST"])
 def register_view(request):
     '''
-    A view that registers new user using "name", "email" and "password"
+    A view that registers new user using:
+    "first_name", "last_name", "email" and "password" and "security question/s"
     '''
-    # Serialize the user and save him
-    serializered_user = UserSerializer(data=request.data)
+    # Validate user's info (not containing sequrity questions)
+    info = request.data.get('info')
+    serializered_user = UserSerializer(data=info)
     serializered_user.is_valid(raise_exception=True)
-    serializered_user.save()
 
-    user = User.objects.get(id=serializered_user.data["id"])
+    # Validate sequrity Q&A
+    answers = request.data.get('answers')
+    serializered_answers = SecurityAnswerSerializer(data=answers, many=True)
+    serializered_answers.is_valid(raise_exception=True)
+
+    # Check if the user has selected the same questions twice
+    questions = serializered_answers.validated_data
+    if len(questions) == 2 and questions[0]['question'] == questions[1]['question']:
+        return Response({"message": "You can't select the same question twice"})
+
+    # # Everything is ok and valid
+    # # Save the user
+    user = serializered_user.save()
+
+    # # Add user_id
+    for data in serializered_answers.validated_data:
+        data['user'] = user
+
+    # # Save the Sequrity Q&A
+    serializered_answers.save()
 
     # Get tokens
     tokens = get_tokens_for_user(user)
 
     return Response(tokens, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+def get_all_security_questions(request):
+    questions = SecurityQuestion.objects.all()
+    serializer = SecurityQuestionSerializer(questions, many=True)
+
+    return Response({"questions": serializer.data})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @api_view(["POST"])
@@ -71,8 +129,8 @@ def login_view(request):
     return Response(tokens, status=status.HTTP_200_OK)
 
 
-@api_view(["POST"])
-def forgot_password(request):
+# @api_view(["POST"])
+# def forgot_password(request):
     # # Check if email is provided in the request
     # if not (email := request.data.get('email')):
     #     return Response({"message":"Email's not provided."})
@@ -87,30 +145,20 @@ def forgot_password(request):
     # uid = urlsafe_base64_encode(force_bytes(user.pk))
     # reset_link = f"blublublu/reset-password/{uid}/{token}/"
 
-    subject = "Reset Password"
-    message = f"Hello, Click this link to reset your password"
+    # subject = "Reset Password"
+    # message = f"Hello, Click this link to reset your password"
     # message = f"Hello, Click this link to reset your password {reset_link}"
 
-    email = request.data.get('email')
-    send_mail(
-        subject,
-        message,
-        settings.EMAIL_HOST_USER,
-        [email],
-        fail_silently=False,
-    )
+    # email = request.data.get('email')
+    # send_mail(
+    #     subject,
+    #     message,
+    #     settings.EMAIL_HOST_USER,
+    #     [email],
+    #     fail_silently=False,
+    # )
 
-    return Response("pass")
-
-
-
-
-
-
-
-
-
-
+    # return Response("pass")
 
 
 # Logout

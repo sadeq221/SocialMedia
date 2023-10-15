@@ -6,7 +6,7 @@ from .models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'password']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -33,6 +33,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         }
 
 
+class SecurityQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SecurityQuestion
+        fields = "__all__"
+
+
+class SecurityAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SecurityAnswer
+        fields = ["question", "answer"]
+
+
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
@@ -55,6 +67,12 @@ class PostSerializer(serializers.ModelSerializer):
         return instance
     
 
+class PostLikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostLike
+        fields = '__all__'
+    
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -75,12 +93,6 @@ class CommentSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
-    
-
-class PostLikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostLike
-        fields = '__all__'
 
 
 class CommentLikeSerializer(serializers.ModelSerializer):
@@ -89,11 +101,11 @@ class CommentLikeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Message
-        fields= "__all__"
+# class MessageSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Message
+#         fields= "__all__"
 
-    def create(self, validated_data):
-        if validated_data['sender'] == validated_data['receiver']:
-            raise ValidationError("User can't send message to himself.", code='invalid')
+#     def create(self, validated_data):
+#         if validated_data['sender'] == validated_data['receiver']:
+#             raise ValidationError("User can't send message to himself.", code='invalid')

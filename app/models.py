@@ -3,7 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     email = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=255)
 
@@ -26,6 +27,10 @@ class User(AbstractUser):
             Profile.objects.create(user=self)
 
 
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+
     # Checks if the user is following the given user?
     def is_following(self, user):
         return self.following.filter(following=user).exists()
@@ -37,7 +42,7 @@ class User(AbstractUser):
     
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.full_name()}"
 
     
 class Profile(models.Model):
@@ -48,6 +53,22 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile for {self.user}"
+
+
+class SecurityQuestion(models.Model):
+    text = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.id}. {self.text}"
+
+
+class SecurityAnswer(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="answers", editable=False)
+    question = models.ForeignKey(SecurityQuestion, on_delete=models.CASCADE, related_name="answers")
+    answer = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.user}'s answer on question {self.question.id}"
     
 
 class Follow(models.Model):
@@ -122,8 +143,8 @@ class CommentLike(models.Model):
         return f"{self.user} liked a comment on {self.comment.post.title}"
     
 
-class Message(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+# class Message(models.Model):
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+#     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
+#     content = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
