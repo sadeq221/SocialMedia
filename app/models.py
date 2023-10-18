@@ -60,17 +60,10 @@ class SecurityQuestion(models.Model):
 
     def __str__(self):
         return f"{self.id}. {self.text}"
-    
-
-class NewSecurityQuestion(models.Model):
-    text = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"{self.id}. {self.text}"
 
 
 class SecurityAnswer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="answers", editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="answers")
     question = models.ForeignKey(SecurityQuestion, on_delete=models.CASCADE, related_name="answers")
     answer = models.CharField(max_length=255)
 

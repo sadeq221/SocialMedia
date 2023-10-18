@@ -5,7 +5,6 @@ from .models import *
 admin.site.register(User)
 admin.site.register(Profile)
 admin.site.register(SecurityQuestion)
-admin.site.register(NewSecurityQuestion)
 admin.site.register(SecurityAnswer)
 admin.site.register(Follow)
 admin.site.register(Post)

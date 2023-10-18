@@ -35,7 +35,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class SecurityQuestionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NewSecurityQuestion
+        model = SecurityQuestion
         fields = "__all__"
 
 
