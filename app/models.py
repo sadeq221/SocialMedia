@@ -60,6 +60,13 @@ class SecurityQuestion(models.Model):
 
     def __str__(self):
         return f"{self.id}. {self.text}"
+    
+
+class NewSecurityQuestion(models.Model):
+    text = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.id}. {self.text}"
 
 
 class SecurityAnswer(models.Model):
