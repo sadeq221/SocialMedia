@@ -1,7 +1,6 @@
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import NotFound
 
-
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 

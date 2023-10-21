@@ -6,7 +6,7 @@ from .models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'password']
+        fields = ['id', 'email', 'password', 'first_name', 'last_name', 'avatar', 'bio', 'birth_date']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -21,16 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-    
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = '__all__'
-
-        extra_kwargs = {
-            'user': {'read_only': True}
-        }
 
 
 class SecurityQuestionSerializer(serializers.ModelSerializer):

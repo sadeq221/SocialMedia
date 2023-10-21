@@ -38,15 +38,17 @@ def register_view(request):
     serializered_answers.is_valid(raise_exception=True)
 
     # Check if the user has selected the same questions twice
-    questions = serializered_answers.validated_data
-    if len(questions) == 2 and questions[0]['question'] == questions[1]['question']:
-        return Response({"message": "You can't select the same question twice"})
-
-    # # Everything is ok and valid
-    # # Save the user
+    questions = []
+    for question in serializered_answers.validated_data:
+        if question in questions:
+            return Response({"message": "You can't select the same question twice"})
+        questions.append(question)
+    
+    # Everything is ok and valid
+    # Save the user
     user = serializered_user.save()
 
-    # # Add user_id
+    # # Add user_id to every security answer
     for data in serializered_answers.validated_data:
         data['user'] = user
 
@@ -65,36 +67,6 @@ def get_all_security_questions(request):
     serializer = SecurityQuestionSerializer(questions, many=True)
 
     return Response({"questions": serializer.data})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @api_view(["POST"])
@@ -117,8 +89,8 @@ def login_view(request):
         )
 
     # Check the password
-    passwor = request.data["password"]
-    check = user.check_password(passwor)
+    password = request.data["password"]
+    check = user.check_password(password)
     if not check:
         return Response({"Incorrect password"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -187,11 +159,10 @@ def token_blacklist(request):
 def view_profile(request, user_id):
     # Retrieve the User and associated Profile objects
     user = get_object_or_404(User, pk=user_id)
-    profile = user.profile
 
     # Serialize and return the Profile data
-    serializered_prof = ProfileSerializer(profile)
-    return Response(serializered_prof.data)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
 
 
 @api_view(["PATCH"])
@@ -207,8 +178,7 @@ def edit_profile(request, user_id):
         )
 
     # Retrieve the profile, edit and save it
-    profile = user.profile
-    serializer = ProfileSerializer(profile, request.data, partial=True)
+    serializer = UserSerializer(user, request.data, partial=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
 
@@ -496,9 +466,13 @@ def list_user_comment_likes(request, user_id):
 def follow(request, user_id):
 
     user = request.user
-
     user_to_follow = get_object_or_404(User, pk=user_id)
 
+    # Insure not following self
+    if user == user_to_follow:
+        return Response({"error": "You can't follow yourself."})
+
+    # Insure not currently following the target
     try:
         Follow.objects.create(follower=user, following=user_to_follow)
     except IntegrityError:
@@ -507,8 +481,9 @@ def follow(request, user_id):
             status=status.HTTP_409_CONFLICT
         )
     
+    # Successfull
     return Response(
-        {"message": f"Successfully followed {user_to_follow.name}"},
+        {"message": f"Successfully followed {user_to_follow.full_name()}"},
         status=status.HTTP_201_CREATED
         )
 
@@ -521,6 +496,8 @@ def unfollow(request, user_id):
 
     user_to_unfollow = get_object_or_404(User, pk=user_id)
 
+
+
     try:
         follow = Follow.objects.get(follower=user, following=user_to_unfollow)
         follow.delete()
@@ -530,7 +507,7 @@ def unfollow(request, user_id):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    return Response({"message": f"Successfully unfollowed {user_to_unfollow.name}"})
+    return Response({"message": f"Successfully unfollowed {user_to_unfollow.full_name()}"})
 
 
 # ======================= Message =================================

@@ -3,7 +3,6 @@ from .models import *
 
 # Register your models here.
 admin.site.register(User)
-admin.site.register(Profile)
 admin.site.register(SecurityQuestion)
 admin.site.register(SecurityAnswer)
 admin.site.register(Follow)
