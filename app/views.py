@@ -10,14 +10,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
-import environ
-
-env = environ.Env()
-
 from .helpers import get_tokens_for_user, get_object_or_404
 from .models import *
 from .serializers import *
 
+import environ
+env = environ.Env()
 
 # ====================== Authentication =============================
 
@@ -61,14 +59,6 @@ def register_view(request):
     return Response(tokens, status=status.HTTP_201_CREATED)
 
 
-@api_view(["GET"])
-def get_all_security_questions(request):
-    questions = SecurityQuestion.objects.all()
-    serializer = SecurityQuestionSerializer(questions, many=True)
-
-    return Response({"questions": serializer.data})
-
-
 @api_view(["POST"])
 def login_view(request):
     '''
@@ -99,6 +89,38 @@ def login_view(request):
 
     # Return the tokens
     return Response(tokens, status=status.HTTP_200_OK)
+
+
+# Get all the available security questions
+@api_view(["GET"])
+def get_all_security_questions(request):
+    questions = SecurityQuestion.objects.all()
+    serializer = SecurityQuestionSerializer(questions, many=True)
+
+    return Response({"questions": serializer.data})
+
+
+@api_view(["POST"])
+def get_user_questions(request):
+    # Check if email is provided in the request
+    if not (email := request.data.get('email')):
+        return Response({"message":"Email's not provided."})
+    
+    # User existance
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({"message": "User with this email was not found."})
+    
+    # Get the user's security questions
+    questions = SecurityAnswer.objects.filter(user=user)
+    question_ids = [question.question.id for question in questions]
+
+    return Response({
+        "user": user.id,
+        "questions": question_ids
+        })
+
 
 
 # @api_view(["POST"])

@@ -2,6 +2,7 @@ from datetime import datetime
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from .models import *
+from .helpers import hash_security_answer
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,7 +33,23 @@ class SecurityQuestionSerializer(serializers.ModelSerializer):
 class SecurityAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = SecurityAnswer
-        fields = ["question", "answer"]
+        exclude = ["id"]
+        extra_kwargs = {
+            'user': {'read_only': True},
+            'answer': {'write_only': True},
+        }
+        
+
+    def create(self, validated_data):
+        answer = validated_data.pop('answer', None)
+        instance = self.Meta.model(**validated_data)
+
+        if answer is not None:
+            instance.answer = hash_security_answer(answer)
+
+        instance.save()
+
+        return instance
 
 
 class PostSerializer(serializers.ModelSerializer):
