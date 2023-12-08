@@ -46,3 +46,11 @@ MEDIA_URL = '/media/'
 
 # Specify the filesystem path where uploaded media files will be stored
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = 'homam.s11@gmail.com' # use any valid webmail address
+EMAIL_HOST_PASSWORD = ".adad5252"
+EMAIL_PORT = 25
+EMAIL_USE_TLS = True

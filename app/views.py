@@ -117,10 +117,47 @@ def get_user_questions(request):
     question_ids = [question.question.id for question in questions]
 
     return Response({
-        "user": user.id,
+        "email": email,
         "questions": question_ids
         })
 
+
+@api_view(["POST"])
+def verify_answers(request):
+    # Check if email is provided in the request
+    if not (email := request.data.get('email')):
+        return Response({"message":"Email's not provided."})
+    
+    # Check if answers are provided in the request
+    if not (recieved_answers := request.data.get('answers')):
+        return Response({"message":"Answers are not provided."})
+    
+    # User existance
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({"message": "User with this email was not found."})
+    
+    # Get the user's security questions
+    questions = SecurityAnswer.objects.filter(user=user)
+    right_answers = {str(question.question.id): question.answer.lower() for question in questions}
+
+    if not recieved_answers == right_answers:
+        return Response({"message": "Answers are wrong."})
+    
+    ...
+    subject = "Reset Password"
+    message = f"Hello, Click this link to reset your password"
+
+    send_mail(
+        subject,
+        message,
+        "homam.s11@gmail.com",
+        ["sadegh_mosawi@yahoo.com"],
+        fail_silently=False,
+    )
+
+    return Response({"message": "Reset-Link was sent via email."})
 
 
 # @api_view(["POST"])
