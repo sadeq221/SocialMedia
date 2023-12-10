@@ -13,9 +13,9 @@ urlpatterns = [
     path('token/blacklist/', views.token_blacklist, name='token_blacklist'),
     path('register/', views.register_view, name='register'),
     path('security_questions', views.get_all_security_questions, name='all_security_questions'),
-    path('password/get_user_questions/', views.get_user_questions, name='get_user_questions'),
-    path('password/verify_answers/', views.verify_answers, name='verify_answers'),
-    path('password/reset_password/', views.reset_password, name='reset_password'),
+    path('reset_password/get_user_questions/', views.get_user_questions, name='get_user_questions'),
+    path('reset_password/verify_answers/', views.verify_answers, name='verify_answers'),
+    path('reset_password/done/', views.reset_password, name='reset_password'),
 
     # User
     path('user/<int:user_id>/posts', views.list_user_posts, name='list_user_posts'),

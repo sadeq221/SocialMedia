@@ -51,7 +51,7 @@ class SecurityAnswer(models.Model):
 
 class PasswordRestToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="PasswordRestTokens")
-    token = models.CharField()
+    token = models.CharField(max_length=255)
     is_used = models.BooleanField(default=False)
     
 
