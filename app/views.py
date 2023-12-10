@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -110,7 +110,7 @@ def get_user_questions(request):
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response({"message": "User with this email was not found."})
+        return Response({"message": "User with this email was not found."}, status=status.HTTP_404_NOT_FOUND)
     
     # Get the user's security questions
     questions = SecurityAnswer.objects.filter(user=user)
@@ -136,60 +136,89 @@ def verify_answers(request):
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response({"message": "User with this email was not found."})
+        return Response({"message": "User with this email was not found."}, status=status.HTTP_404_NOT_FOUND)
     
-    # Get the user's security questions
+    # Get the user's security answers
     questions = SecurityAnswer.objects.filter(user=user)
-    right_answers = {str(question.question.id): question.answer.lower() for question in questions}
+    right_answers = {str(question.question.id): question.answer for question in questions}
 
+    # Hash the recieved answers to be comarable with the right answers
+    for answer in recieved_answers:
+        recieved_answers[answer] = hash_security_answer(str(recieved_answers[answer]).lower())
+
+    # Check the answers provided by user
     if not recieved_answers == right_answers:
         return Response({"message": "Answers are wrong."})
     
-    ...
+    # Make token
+    token = default_token_generator.make_token(user)
+
+    # Encode user id
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+    # Make reset link
+    reset_link = f"blublublu/reset-password/{uid}/{token}/"
+
+    # Prepare and send the email
     subject = "Reset Password"
-    message = f"Hello, Click this link to reset your password"
+    message = f"Hello, Click this link to reset your password\n{reset_link}"
 
     send_mail(
         subject,
         message,
-        "homam.s11@gmail.com",
-        ["sadegh_mosawi@yahoo.com"],
-        fail_silently=False,
+        "no-reply@sadeqmousawi.ir",
+        [email],
+        # fail_silently=False,
     )
 
-    return Response({"message": "Reset-Link was sent via email."})
+    return Response({"message": "Reset-Link was sent to your email."})
 
-
-# @api_view(["POST"])
-# def forgot_password(request):
-    # # Check if email is provided in the request
-    # if not (email := request.data.get('email')):
-    #     return Response({"message":"Email's not provided."})
+@api_view(["POST"])
+def reset_password(request):
+    # Check the new password existance
+    try:
+        new_password = request.data['password']
+    except KeyError:
+        return Response({"message": "New password is not provided."})
     
-    # # User existance
-    # try:
-    #     user = User.objects.get(email=email)
-    # except User.DoesNotExist:
-    #     return Response({"message": "User with this email was not found."})
+    # Check the new password confirmation existance
+    try:
+        confirm = request.data['confirm']
+    except KeyError:
+        return Response({"message": "password confirmation is not provided."})
     
-    # token = default_token_generator.make_token(user)
-    # uid = urlsafe_base64_encode(force_bytes(user.pk))
-    # reset_link = f"blublublu/reset-password/{uid}/{token}/"
+    if not new_password == confirm:
+        return Response({"message": "Password doesn't match confirmation."})
 
-    # subject = "Reset Password"
-    # message = f"Hello, Click this link to reset your password"
-    # message = f"Hello, Click this link to reset your password {reset_link}"
+    # Get the uid and the user respectfuly
+    try:
+        encoded_uid = request.data['uid']
 
-    # email = request.data.get('email')
-    # send_mail(
-    #     subject,
-    #     message,
-    #     settings.EMAIL_HOST_USER,
-    #     [email],
-    #     fail_silently=False,
-    # )
+        # Decode the user ID
+        uid = urlsafe_base64_decode(encoded_uid).decode()
+    
+        # Retrieve the user from the database
+        user = User.objects.get(pk=uid)
 
-    # return Response("pass")
+    except KeyError:
+        return Response({"message": "Uid is not provided."})
+    except User.DoesNotExist:
+        return Response({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Get the token
+    try:
+        token = request.data['token']
+    except KeyError:
+        return Response({"message": "token is not provided."})
+
+    # Check token validity
+    if not default_token_generator.check_token(user, token):
+        return Response({"message": "Invalid token."})
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response({"message": "Password is changed successfully."})
 
 
 # Logout

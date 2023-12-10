@@ -49,6 +49,12 @@ class SecurityAnswer(models.Model):
         return f"{self.user}'s answer on question {self.question.id}"
     
 
+class PasswordRestToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="PasswordRestTokens")
+    token = models.CharField()
+    is_used = models.BooleanField(default=False)
+    
+
 class Follow(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following")
     following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followers")

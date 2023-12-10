@@ -45,6 +45,8 @@ class SecurityAnswerSerializer(serializers.ModelSerializer):
         instance = self.Meta.model(**validated_data)
 
         if answer is not None:
+            # Insure the answer is a lowercase string
+            answer = str(answer).lower()
             instance.answer = hash_security_answer(answer)
 
         instance.save()
