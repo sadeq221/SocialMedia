@@ -2,8 +2,8 @@
 
 ## Introduction
 A Django back-end project containing two apps:
-**Main**: Provides DRF APIs for managing features like: Authentication, Posts, Comments, Likes, Follows and etc.
-**Chat**: Provides the ability to chat with other users using Django channels and websockets.
+####**Main**: Provides DRF APIs for managing features like: Authentication, Posts, Comments, Likes, Follows and etc.
+####**Chat**: Provides the ability to chat with other users using Django channels and websockets.
 
 ## Structure of the Project
 ### Root directory
