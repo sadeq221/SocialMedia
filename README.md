@@ -2,8 +2,8 @@
 
 ## Introduction
 A Django back-end project containing two apps:
-#### **Main**: Provides DRF APIs for managing features like: Authentication, Posts, Comments, Likes, Follows and etc.
-#### **Chat**: Provides the ability to chat with other users using Django channels and websockets.
+* **Main**: Provides DRF APIs for managing features like: Authentication, Posts, Comments, Likes, Follows and etc.
+* **Chat**: Provides the ability to chat with other users using Django channels and websockets.
 
 ## Structure of the Project
 ### Root directory
@@ -13,21 +13,17 @@ A Django back-end project containing two apps:
 #### .env
 A file that include the environment variables of the sensitive data to be used in the settings
 
-#### db.sqlite3
-The database file that is used for this project
-
 #### /media and /static
 "Media" directoriy is meant to store the media files uploaded by user. While "static" is all about storing the files that are parts of the website like html, css, javascript and the some media files.
 These two operations are handled differently through development and production.
 In development, they are done by django itself. While in production, static files are served by the server using "whitenoise" and the user-media files are served using a separeate domain; "media.domain.com".
 
 #### /Requirements
-This directory includes three ".in" files, requirements_base.in, requirements_dev.in and requirements_prod.in. The first one includes all pip-installable packages that are required for development and production. The second inherits all that packages from the first one and in addition has some development-specific packages that are needed for staff like debuging, testing and ...
+This directory includes three ".txt" files; base, dev and prod. The first one includes all pip-installable packages that are required for development and production. The second inherits all that packages from the first one and in addition has some development-specific packages that are needed for staff like debuging, testing and ...
 The third one also inherits from the base but as you can guess from its name, It has some additional production-specific packages that are necessary for deployment.
-When you want to install the requirements, You just need to run pip-compile on one of those to files to get the ".txt" file which you can install its packages running pip-sync command.
 
 #### /social
-This is my project folder that includes:
+This is the project folder that includes:
 
 ##### wsgi.py
 The configuration file needed in deployment
@@ -39,7 +35,7 @@ The main urls of the project.
 Like requirements folder, The settings also has three files: base.py, development.py and production.py. The first has all the necessary configuration for the project. The second inherits from the first and adds some development-specific configuration. While the production.py in addition to inheriting from the base, it has the production-specific confgs.
 
 #### /app
-This is the main and only app of the project. It includes:
+This is the main app of the project. It includes:
 
 ##### /tests
 This is a folder containig all the necessary tests like testing views, models and urls
@@ -69,7 +65,6 @@ For authentication, we're using jwt tokens. They are generated through register 
 
 ### Database Considerations
 * User needs to have a unique email
-* I've overriden the default save method of the user model so whenever a user object is created, there will be a profile created for it.
 * A user can only like a post or a comment once.(Duplicate PostLikes or CommentLikes are not allowed).
 * A user can only follow another user once (Duplicate Follow objects are not allowed).
 
