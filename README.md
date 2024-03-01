@@ -10,23 +10,20 @@ A Django back-end project containing two apps:
 
 **Note** When explaining the structure, We are not gonna mention the django built-in files like manage.py and ... because these are familiar to everyone who knows djanog and there is no need to talk about them here.
 
-#### .env
-A file that include the environment variables of the sensitive data to be used in the settings
+#### /Requirements
+This directory includes three ".txt" files; base, dev and prod. The first one includes all pip-installable packages that are required for development and production. The second inherits all that packages from the first one and in addition has some development-specific packages that are needed for staff like debuging, testing and ...
+The third one also inherits from the base but as you can guess from its name, It has some additional production-specific packages that are necessary for deployment.
 
 #### /media and /static
 "Media" directoriy is meant to store the media files uploaded by user. While "static" is all about storing the files that are parts of the website like html, css, javascript and the some media files.
 These two operations are handled differently through development and production.
 In development, they are done by django itself. While in production, static files are served by the server using "whitenoise" and the user-media files are served using a separeate domain; "media.domain.com".
 
-#### /Requirements
-This directory includes three ".txt" files; base, dev and prod. The first one includes all pip-installable packages that are required for development and production. The second inherits all that packages from the first one and in addition has some development-specific packages that are needed for staff like debuging, testing and ...
-The third one also inherits from the base but as you can guess from its name, It has some additional production-specific packages that are necessary for deployment.
+#### .env
+A file that include the environment variables of the sensitive data to be used in the settings
 
 #### /social
 This is the project folder that includes:
-
-##### wsgi.py
-The configuration file needed in deployment
 
 ##### urls.py
 The main urls of the project.
@@ -72,3 +69,7 @@ For authentication, we're using jwt tokens. They are generated through register 
 The project is coverd by lots of tests using django test framework. This tests are written for views, models and urls and are designed to verify that valid and invalid scenarios are handled correctly.
 They are written into separate files; test_views.py, test_urls.py and test_models.py.
 In each file the tests are coded into classes, each class is meant to handle the related operations. For expamle, in test_views.py, all the comment-related tests are written into a class called "TestCommentViews". By using this approach, the test are gonna be more clean, readable and well-designed.
+
+## /chat
+This is the second app which let users communicate with each other using channels and web sockets.
+More detailed explanations about this app are comming soon ...

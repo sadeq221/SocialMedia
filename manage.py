@@ -11,6 +11,7 @@ environ.Env.read_env()
 
 def main():
     """Run administrative tasks."""
+    # If "test" command is run
     if sys.argv[1] == "test":
         # Live-server test need different settings
         if sys.argv[2] == "--live":
@@ -23,11 +24,9 @@ def main():
         else:
             os.environ.setdefault("DJANGO_SETTINGS_MODULE", "social.settings.testing")
 
-    elif env("DJANGO_ENV") == "development":
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "social.settings.development")
-
+    # Other commands
     else:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "social.settings.production")
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"social.settings.{env('DJANGO_ENV')}")
 
     try:
         from django.core.management import execute_from_command_line
