@@ -1,10 +1,9 @@
-# SOCIAL MEDIA API's
+# SOCIAL MEDIA
 
 ## Introduction
-This project is a backend API social app which is built with Django Rest Framework. It provides fully functional social media API’s which have all the necessary regular features like:
-register, login and follow other users.
-create, read, edit and delete posts, comments
-Like posts, comments and reply comments
+A Django back-end project containing two apps:
+### **Main**: Provides DRF APIs for managing features like: Authentication, Posts, Comments, Likes, Follows and etc.
+### **Chat**: Provides the ability to chat with other users using Django channels and websockets.
 
 ## Structure of the Project
 ### Root directory
