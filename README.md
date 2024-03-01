@@ -34,28 +34,28 @@ The main urls of the project.
 ##### /settings
 Like requirements folder, The settings also has three files: base.py, development.py and production.py. The first has all the necessary configuration for the project. The second inherits from the first and adds some development-specific configuration. While the production.py in addition to inheriting from the base, it has the production-specific confgs.
 
-#### /app
+## /app
 This is the main app of the project. It includes:
 
-##### /tests
+#### /tests
 This is a folder containig all the necessary tests like testing views, models and urls
 
-##### helpers.py
+#### helpers.py
 In this file, I've defined some handy and reusable functions to take adventage of in the views.py file.
 
-##### urls.py
+#### urls.py
 The urls of the app. This urls take us to the main functionallity of the API's. Most of them are for the CRUD operations.
 
-##### models.py
+#### models.py
 The models of the app. The available models are User, Profile, Follow, Post, Comment, PostLike and CommentLike. Each one of them handles the dealing with database to create, read, edit and delete the related objects.
 
-##### serializers.py
+#### serializers.py
 Contains serializers for the above models.
 
-##### views.py
+#### views.py
 Contains the fuction-based api-views that are used in this application
 
-## How does it work
+### How does it work
 Like any other django-rest-framework API. This program is supposed to behave the same. By visiting a url, you're gonna be taken to the related view and after proccessing the request, you will get a json response.
 
 Lets take a look at some of important aspects of the app
