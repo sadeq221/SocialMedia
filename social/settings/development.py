@@ -39,7 +39,7 @@ INTERNAL_IPS = [
 STATIC_URL = '/static/'
 
 # Make sure that BASE_DIR is defined somewhere at the top
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Specify the URL prefix for serving media files
 MEDIA_URL = '/media/'

@@ -4,7 +4,7 @@ from .base import *
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.sadeqmousawi.ir'
-EMAIL_HOST_USER = 'no-reply@sadeqmousawi.ir' # use any valid webmail address
+EMAIL_HOST_USER = '_mainaccount@sadeqmousawi.ir' # use any valid webmail address
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 465

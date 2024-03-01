@@ -30,7 +30,7 @@ class User(AbstractUser):
     
 
     def __str__(self):
-        return f"{self.full_name()}"
+        return f"{self.id}: {self.full_name()}"
 
 
 class SecurityQuestion(models.Model):
@@ -126,9 +126,3 @@ class CommentLike(models.Model):
     def __str__(self):
         return f"{self.user} liked a comment on {self.comment.post.title}"
     
-
-# class Message(models.Model):
-#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
-#     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
-#     content = models.TextField()
-#     timestamp = models.DateTimeField(auto_now_add=True)

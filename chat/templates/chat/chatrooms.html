@@ -1,0 +1,16 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat Room</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'chat/icons/favicon.png' %}">
+  </head>
+  <body>
+    <label for="token-input">Enter Bearer Token:</label>
+    <input id="token-input" type="text" size="30" />
+    <input id="token-submit" type="button" value="Send" /><br /><br />
+  </body>
+
+</html>
+<script src="{% static 'chat/js/chatrooms.js' %}"></script>

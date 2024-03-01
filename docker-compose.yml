@@ -1,23 +1,49 @@
-version: "3.7"
-
+version: '3'
 services:
-  db:
-    image: postgres
+  app:
+    build: .
     volumes:
-      - postgres_data:/var/lib/postgresql/postgres_data
-    env_file: .env
-
-  web:
-    build:
-      context: .
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+      - .:/app
     ports:
       - 8000:8000
-    env_file: .env
+
+    # Our project files get their environment variables (environ) from below (not from .env)
+    # What about .env ? we use its variable inside ${} to avoid inserting plain text here
+    environment:
+      - DB_HOST=${DOCKER_DB_HOST}
+    depends_on:
+      db:
+        # Based on health check
+        condition: service_healthy
+      
+  db:
+    image: postgres
+
+    container_name: social-db-container
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
     volumes:
-      - .:/usr/src/app
+      - postgres_data:/var/lib/postgresql/data
+      # - C:\Users\sadeq\Desktop\data:/var/lib/postgresql/data
+
+    restart: always
+
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+
+    # Determine when the db is accepted as healthy
+    healthcheck:
+
+      # test takes two aruments ["executable", "arg"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
 
 volumes:
   postgres_data:
+  # foo:
+  #   # # If below is not specifyed, docker will use other volume (projectname_postgres_data)
+  #   external: true

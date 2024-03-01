@@ -5,10 +5,10 @@ from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .helpers import get_tokens_for_user, get_object_or_404
 from .models import *
@@ -86,6 +86,10 @@ def login_view(request):
 
     # Get tokens
     tokens = get_tokens_for_user(user)
+
+    # Send a signal to notify user login
+    from .signals import successful_login
+    successful_login.send(sender=user)
 
     # Return the tokens
     return Response(tokens, status=status.HTTP_200_OK)
@@ -202,6 +206,8 @@ def reset_password(request):
 
     except KeyError:
         return Response({"message": "Uid is not provided."})
+    except UnicodeDecodeError:
+        return Response({"message": "Invalid Uid."})
     except User.DoesNotExist:
         return Response({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
     
